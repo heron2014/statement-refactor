@@ -25,28 +25,25 @@ const moviesPerCustomer = (customer, movies) =>
 
 // customer statement
 function statement(customer, movies) {
-  let totalAmount = 0;
-  let frequentRenterPoints = 0;
-  let result = `Rental Record for ${customer.name}\n`;
-
-  moviesPerCustomer(customer, movies)
-    .forEach((movie) => {
-      const price = getPricePerMovie(movie, movie.days);
-
-      frequentRenterPoints++;
-
-      if(movie.code === "new" && movie.days > 2) frequentRenterPoints++;
-
-      result += `\t${movie.title}\t${price}\n` ;
-
-      totalAmount += price;
-    });
+  const statementValues = moviesPerCustomer(customer, movies)
+    .reduce((acc, cur ) => {
+      const price = getPricePerMovie(cur, cur.days);
+      return {
+        frequentRenterPoints: (cur.code === "new" && cur.days > 2) ? acc.frequentRenterPoints + 2 : acc.frequentRenterPoints + 1,
+        result: `${acc.result}\t${cur.title}\t${price}\n`,
+        totalAmount: acc.totalAmount + price,
+      };
+    }, {
+      totalAmount: 0,
+      result: `Rental Record for ${customer.name}\n`,
+      frequentRenterPoints: 0,
+    })
 
   // add footer lines
-  result += `Amount owed is ${totalAmount}\n`;
-  result += `You earned ${frequentRenterPoints} frequent renter points\n`;
+  statementValues.result += `Amount owed is ${statementValues.totalAmount}\n`;
+  statementValues.result += `You earned ${statementValues.frequentRenterPoints} frequent renter points\n`;
 
-  return result;
+  return statementValues.result;
 }
 
 /* Customer Record
