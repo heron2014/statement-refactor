@@ -1,3 +1,28 @@
+const REGULAR_PRICE = 2;
+const NEW_PRICE = 3;
+const BASE_PRICE = 1.5;
+
+const getPricePerMovie = (movie, days) => {
+  switch (movie.code) {
+    case "regular":
+      if (days > 2) {
+        return REGULAR_PRICE + (days - 2) * BASE_PRICE;
+      }
+      return REGULAR_PRICE;
+    case "new":
+      return days * NEW_PRICE;
+    case "childrens":
+      if (days > 3) {
+        return BASE_PRICE + (days - 3) * BASE_PRICE;
+      }
+      return BASE_PRICE;
+  }
+}
+
+const moviesPerCustomer = (customer, movies) =>
+  customer.rentals
+    .map((r) => ({ ...movies[r.movieID], days: r.days }));
+
 // customer statement
 function statement(customer, movies) {
   let totalAmount = 0;
@@ -62,3 +87,5 @@ function statement(customer, movies) {
   // etc
 }
 */
+
+export { statement }
