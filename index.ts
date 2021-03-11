@@ -1,10 +1,11 @@
 import { createCustomerStatement, getPricePerMovie } from './util';
+import { Customer, Movies, MoviesPerCustomer, StatementValues } from './types';
 
-const moviesPerCustomer = (customer, movies) =>
+const moviesPerCustomer = (customer: Customer, movies: Movies) =>
   customer.rentals
     .map((r) => ({ ...movies[r.movieID], days: r.days }));
 
-const getStatementValues = (acc, cur) => {
+const getStatementValues = (acc: StatementValues, cur: MoviesPerCustomer) => {
   const price = getPricePerMovie(cur, cur.days);
   const hasBonusPoints = cur.code === "new" && cur.days > 2;
   return {
@@ -14,36 +15,17 @@ const getStatementValues = (acc, cur) => {
   };
 }
 
-const defaultStatementValues = (name) => ({
+const defaultStatementValues = (name: Customer['name']) => ({
   totalAmount: 0,
   result: `Rental Record for ${name}\n`,
   frequentRenterPoints: 0,
 });
 
-// customer statement
-function statement(customer, movies) {
+function statement(customer: Customer, movies: Movies): string {
   return createCustomerStatement(
     moviesPerCustomer(customer, movies)
-    .reduce(getStatementValues, defaultStatementValues(customer.name))
+    .reduce<StatementValues>(getStatementValues, defaultStatementValues(customer.name))
   )
 }
-
-/* Customer Record
-{
-  "name": "franklin",
-  "rentals": [
-    {"movieID": "F001", "days": 3},
-    {"movieID": "F002", "days": 1},
-  ]
-}
-*/
-
-/* Movie Dataset
-{
-  "F001": {"title": "Ran", "code": "regular"},
-  "F002": {"title": "Trois Couleurs: Bleu", "code": "regular"},
-  // etc
-}
-*/
 
 export { statement }
